@@ -1,9 +1,182 @@
 <!DOCTYPE html>
 <html>
+
 <body>
 <h1>Duolingo Words</h1>
+<div>Begin by logging in to Duolingo at:</div>
+<div>
+<a href="https://www.duolingo.com/log-in?isLoggingIn=true" target="_blank">https://www.duolingo.com/log-in</a>
+</div>
+<br>
+<p>Then download the user profile JSON file.</p>
+<form>
+<div>
+  <label for="username-input">Enter a username:</label>
+  
+  <input type="text" id="username-input" name="username" oninput="updateLink()" value="">
+</div>
+  <br>
+  <div>Right click and 'Save link as...' the link below:</div>
+  <a href="#" target="_blank" id="my-link"></a>
+</form>
+<script>
+// Set the starting URL
+var startingUrl = "https://www.duolingo.com/users/";
+
+// Get the username from the URL if it exists
+var urlParams = new URLSearchParams(window.location.search);
+var username = urlParams.get('username');
+
+// Set the placeholder for the username
+var usernamePlaceholder = "<username>";
+
+// Update the link with the starting URL and the username placeholder
+var link = document.getElementById("my-link");
+link.textContent = startingUrl + (username ? username : usernamePlaceholder);
+link.href = startingUrl + (username ? username : usernamePlaceholder);
+
+// Set the initial value of the input field
+var inputField = document.getElementById("username-input");
+inputField.value = username ? username : "";
+
+function updateLink() {
+  var usernameInput = document.getElementById("username-input").value;
+  var link = document.getElementById("my-link");
+  
+  // Remove the username placeholder from the link text and href
+  var linkText = startingUrl;
+  var linkHref = startingUrl;
+  if (usernameInput.trim().length > 0) {
+    linkText += usernameInput;
+    linkHref += usernameInput;
+  } else if (username) {
+    linkText += username;
+    linkHref += username;
+  } else {
+    linkText += usernamePlaceholder;
+    linkHref += usernamePlaceholder;
+  }
+  link.textContent = linkText;
+  link.href = linkHref;
+}
+
+inputField.addEventListener("keydown", function(event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    var usernameInput = document.getElementById("username-input").value;
+    if (usernameInput.trim().length > 0) {
+      window.open(startingUrl + usernameInput, '_blank');
+    } else if (username) {
+      window.open(startingUrl + username, '_blank');
+    }
+  }
+});
+
+</script>
+
+
+<br>
+
+<p>Import the JSON file to be parsed.</p>
+
+
+<!--
+<div>
+<form>
+  <label for="file-input">Select a file:</label>
+  <input type="file" id="file-input">
+</form>
+</div>
+-->
+
+<!-- HTML code for the file input button and list -->
+<form>
+  <label for="file-upload">Choose a file to upload:</label>
+  <input type="file" id="file-upload" name="file-upload">
+</form>
+<button id="display-words-button">Display learned words</button>
+			<button id="sort-words-button">Sort words</button>
+								<p id="number-words"></p>		  
+<ul id="word-list"></ul>
+
+<!-- JavaScript code to handle the file input and display of results -->
+<script>
+  var fileInput = document.getElementById('file-upload');
+  var wordList = document.getElementById('word-list');
+  var wordNum = document.getElementById('number-words');
+  var displayWordsButton = document.getElementById('display-words-button');
+
+  displayWordsButton.addEventListener('click', function() {
+    var file = fileInput.files[0];
+    var reader = new FileReader();
+    reader.onload = function(event) {
+  try {
+    var languageData = JSON.parse(event.target.result);
+    var learnedWords = [];
+    var skills = languageData['language_data']['gd']['skills']; // updated to access skills from the language_data object
+    for (var i = 0; i < skills.length; i++) {
+      var skill = skills[i];
+      if (skill['learned'] === true) {
+        var words = skill['words'];
+        learnedWords = learnedWords.concat(words);
+      }
+    }
+    wordList.innerHTML = ''; // clear any previous search results
+	wordNum.innerHTML = '';
+	var numWords = learnedWords.length;
+      var listItem = document.createElement('p');
+      listItem.textContent = 'Total words: ' + numWords;
+      wordNum.appendChild(listItem);
+	  
+    for (var i = 0; i < learnedWords.length; i++) {
+      var listItem = document.createElement('li');
+      listItem.textContent = learnedWords[i];
+      wordList.appendChild(listItem);
+    }
+	
+  } catch (error) {
+    console.error('Error parsing file:', error);
+    alert('Error parsing file: ' + error.message);
+  }
+};
+
+
+    reader.readAsText(file);
+  });
+  
+  var sortWordsButton = document.getElementById('sort-words-button');
+
+sortWordsButton.addEventListener('click', function() {
+  var items = wordList.querySelectorAll("li");
+  var itemsArray = Array.from(items);
+  itemsArray.sort(function(a, b) {
+    return a.innerHTML.localeCompare(b.innerHTML);
+  });
+  wordList.innerHTML = '';
+  for (var i = 0; i < itemsArray.length; i++) {
+    wordList.appendChild(itemsArray[i]);
+  }
+});
+
+  
+  
+  
+</script>
+
+
+
+
+
+
+
+
+
+
+<script src="main.js"></script>
 <p></p>
 </body>
 </html>
 
 <!-- https://www.duolingo.com/log-in?isLoggingIn=true -->
+<!-- https://www.duolingo.com/users/<username> -->
+
